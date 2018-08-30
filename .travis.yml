@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - "node"
+
+services:
+  - mongodb
+ env:
+  - MONGODB_URI=mongodb://localhost/test
+
+script:
+  - npm test
+  - npm run lint
+
+notifications:
+  email: fals

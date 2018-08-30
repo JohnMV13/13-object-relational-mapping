@@ -1,0 +1,39 @@
+{
+  "name": "08-http-routing",
+  "version": "1.0.0",
+  "description": "![cf](https://i.imgur.com/7v5ASc8.png) Lab 08: HTTP Routing ======",
+  "main": "server.js",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnMV13/08-http-routing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JohnMV13/08-http-routing/issues"
+  },
+  "homepage": "https://github.com/JohnMV13/08-http-routing#readme",
+  "devDependencies": {
+    "cowsay": "^1.3.1",
+    "eslint": "^5.4.0",
+    "jest": "^23.5.0",
+    "supertest": "^3.1.0"
+  },
+  "dependencies": {
+    "babel-env": "^2.4.1",
+    "babel-eslint": "^8.2.6",
+    "babel-register": "^6.26.0",
+    "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "mongoose": "^5.2.10",
+    "morgan": "^1.9.0"
+  }
+}
