@@ -3,8 +3,8 @@ import express from 'express';
 const router = express.Router();
 
 export default router;
-
-import Paths from '../models/paths';
+import modelFinder from '../lib/middleware/models';
+router.param('model', modelFinder);
 
 import cowsay from 'cowsay';
 
@@ -22,50 +22,68 @@ router.get('/api/cowsay', (req, res) =>{
     content: cowsay.say(req.query),
   });
 });
-router.get('/api/v1/paths', (req,res) =>{
-  return Paths.find()
-    .then(paths => {
-      res.json(paths);
+router.get('/api/v1/:model', (req,res,next) =>{
+  req.Model.find({})
+    .then(models => {
+      res.json(models);
     });
 });
-router.get('/api/v1/paths/:_id', (req,res) =>{
-  return Paths.findById(req.params._id)
-    .then(paths => {
-      res.json(paths);
-    });
+router.get('/api/v1/:model/:_id', (req,res,next) =>{
+  return req.Model.findById(req.params._id)
+    .then(model => {
+      if(model === null){
+        res.sendStatus(404);
+        return;
+      }
+      res.json(model);
+    })
+    .catch(next);
 });
 router.post('/api/cowsay', (req, res) => {
   json(res, {
     message: `Hello, ${req.body.name}!`,
   });
 });
-router.post('/api/v1/paths', (req, res) =>{
-  if (!req.body || !req.body.name || !req.body.family || !req.body.retailer) {
+router.post('/api/v1/:model', (req, res, next) =>{
+  if (!req.body) {
     res.send(400);
     res.end();
     return;
   }
-  var newPath = new Paths({...req.body});
-  newPath.save()
+  var newModel = new req.Model(req.body);
+  newModel.save()
     .then(saved=>{
-      res.json(saved);
-    });
+      return req.Model.findById(saved._id);
+    })
+    .then(found =>{
+      res.json(found);
+    })
+    .catch(next);
 });
-router.put('/api/v1/paths/:_id', (req,res)=>{
-  return Paths.findById(req.params._id)
-    .then(paths =>{
-      paths.name = req.body.name;
-      paths.family = req.body.family;
-      paths.retailer = req.body.retailer;
-      res.json(paths);
+router.put('/api/v1/:model/:_id', (req,res,next)=>{
+  return req.Model.findById(req.params._id)
+    .then(model =>{
+      model.name = req.body.name;
+      model.family = req.body.family;
+      model.retailer = req.body.retailer;
+      res.json(model);
       res.end();
       return;
-    });
+    })
+    .catch(next);
 });
-router.delete('/api/v1/paths/:_id', (req,res)=>{
-  res.json({
-    message: `ID ${req.params._id} was deleted`,
-  });
+router.delete('/api/v1/:model/:_id', (req,res, next)=>{
+  req.Model.findByIdAndRemove(req.params.id)
+    .then(removed => {
+      if (!removed) {
+        return next();
+      }
+
+      res.json({
+        message: `ID ${req.params._id} was deleted`,
+      });
+    })
+    .catch(next);
 });
 
 function html(res, content, statusCode=200, statusMessage='OK'){
@@ -75,7 +93,6 @@ function html(res, content, statusCode=200, statusMessage='OK'){
   res.write(content);
   res.end();
 }
-
   
 function json(res, object){
   if(object){

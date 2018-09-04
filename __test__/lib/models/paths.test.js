@@ -1,5 +1,5 @@
 'use strict';
-import Paths from '../../../src/models/paths';
+import Path from '../../../src/models/paths';
 const mongoConnect = require('../../../src/util/mongo');
 const MONGODB_URI = process.env.MONGODB_URI ||
   'mongodb://localhost/401-2018-paths';
@@ -8,7 +8,7 @@ describe('instrument model', () => {
     return mongoConnect(MONGODB_URI);
   });
   it('can save a Instrument', () => {
-    let instrument = new Paths({
+    let instrument = new Path({
       name: 'Test Instrument',
       family: 'Something',
     });
@@ -19,7 +19,7 @@ describe('instrument model', () => {
       });
   });
   it('fails if title is missing', () => {
-    let instrument = new Paths({
+    let instrument = new Path({
       created: new Date(),
     });
     return expect(instrument.save())
@@ -27,7 +27,7 @@ describe('instrument model', () => {
   });
   // TODO: test Instrument.find()
   it('can find an instrument', ()=>{
-    console.log(Paths.find({}));
+    console.log(Path.find({}));
      
   });
 });

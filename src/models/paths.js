@@ -8,6 +8,9 @@ const pathSchema = Schema({
   retailer: { type: String},
 });
 
-const Paths = mongoose.models.instrument || mongoose.model('path', instrumentSchema);
+const Path = mongoose.models.instrument || mongoose.model('path', pathSchema);
+mongoose.model('path', pathSchema, 'path');
 
-export default Paths;
+Path.route = 'path';
+
+export default Path;

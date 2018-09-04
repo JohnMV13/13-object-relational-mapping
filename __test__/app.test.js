@@ -3,9 +3,9 @@
 const request = require('supertest');
 
 import app from '../src/app';
-import Paths from '../src/models/paths';
+import Path from '../src/lib/models/paths';
 
-const mongoConnect = require('../src/util/mongo');
+const mongoConnect = require('../src/util/mongo-connect');
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/401-2018-paths';
 
 describe('app', () => {
@@ -19,46 +19,12 @@ describe('app', () => {
       .expect(404)
       .expect('Content-Type', 'text/html; charset=utf-8');
   });
-
-  it('responds with HTML for /', ()=>{
-    return request(app)
-      .get('/')
-      .expect(200)
-      .expect('Content-Type', 'text/html')
-      .expect(response =>{
-        expect(response.text[0]).toBe('<');
-      });
-  });
-
-  it('responds with HTML for /cowsay?text={message}', ()=>{
-    return request(app)
-      .get('/cowsay?text=hi')
-      .expect(200)
-      .expect('Content-Type', 'text/html')
-      .expect(response =>{
-        expect(response.text).toBeDefined();
-        expect(response.text).toMatch('<html>');
-        expect(response.text).toMatch(' hi ');
-        expect(response.text).toMatch('</html>');
-      });
-  });
-
-  it('responds with JSON for /api/cowsay?text={message}', ()=>{
-    return request(app)
-      .get('/api/cowsay?text=hi')
-      .expect(200)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect(response =>{
-        expect(response.body).toBeDefined();
-        expect(response.body.content).toMatch(' hi ');
-      });
-  });
   
   describe('api routes', () => {
     it('can PUT to /api/v1/paths', ()=>{
-      var instrument = new Instrument({ name: 'Snare', family: 'Percussion', retailer: 'Yamaha' });
+      var path = new Path({ name: 'snare', family: 'percussion', retailer: 'Yamaha' });
 
-      return instrument.save()
+      return path.save()
         .then(saved => {
           return request(app)
             .put(`/api/v1/paths/${saved._id}`)
@@ -75,19 +41,19 @@ describe('app', () => {
     });
     it('can POST /api/v1/paths to create instrument', () => {
       return request(app)
-        .post('/api/v1/instruments')
-        .send({ name: 'Snare', family: 'Percussion', retailer: 'Yamaha' })
+        .post('/api/v1/paths')
+        .send({ name: 'snare', family: 'percussion', retailer: 'Yamaha' })
         .expect(200)
         .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(response => {
           expect(response.body).toBeDefined();
           expect(response.body._id).toBeDefined();
-          expect(response.body.name).toBe('Snare');
-          expect(response.body.family).toBe('Percussion');
+          expect(response.body.name).toBe('snare');
+          expect(response.body.family).toBe('percussion');
         });
     });
     it('can get /api/v1/paths/:id', () => {
-      var instrument = new Paths({ name: 'Snare', family: 'Percussion', retailer: 'Yamaha' });
+      var path = new Path({ name: 'snare', family: 'percussion', retailer: 'Yamaha' });
 
       return instrument.save()
         .then(saved => {
@@ -98,16 +64,22 @@ describe('app', () => {
             .expect(response=>{
               expect(response.body).toBeDefined();
               expect(response.body._id).toBeDefined();
-              expect(response.body.name).toBe('Snare');
+              expect(response.body.name).toBe('snare');
             });
         });
     });
-    it('can delete /api/notes/deleteme', () => {
-      return request(app)
-        .delete('/api/v1/paths/deleteme')
-        .expect(200)
-        .expect('Content-Type', 'application/json; charset=utf-8')
-        .expect({ message: `ID deleteme was deleted` });
+  });
+  describe('DELETE', ()=>{
+    let testInst;
+    beforeEach(()=>{
+      testInst = new Path({title: 'test', class: 'test'});
+      return testInst.save()
+        .then(()=>{
+          return request(app)
+            .delete(`/api/paths/${testInst._id}`)
+            .expect(200)
+            .expect({ message: `ID ${testInst._id} was deleted` });
+        });
     });
   });
 });
